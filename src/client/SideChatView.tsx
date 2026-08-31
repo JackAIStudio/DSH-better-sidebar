@@ -270,6 +270,8 @@ export function SideChatView(props: {
   const [menuOpen, setMenuOpen] = useState(false)
 
   const cacheRef = useRef<ThreadCache>({ entries: [] })
+  // The previous poll's rows (see the mapping's reuse pass below).
+  const prevRowsRef = useRef<SidechatTranscriptRow[]>([])
   const controllerRef = useRef<AbortController | null>(null)
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const composerRef = useRef<HTMLTextAreaElement | null>(null)
@@ -358,6 +360,7 @@ export function SideChatView(props: {
   // the composer — it owns the first message of a fresh thread.
   useEffect(() => {
     cacheRef.current = { entries: [] }
+    prevRowsRef.current = []
     controllerRef.current?.abort()
     setError(null)
     setSaved(false)
@@ -382,8 +385,14 @@ export function SideChatView(props: {
 
   useEffect(() => () => { controllerRef.current?.abort() }, [])
 
-  const rows = useMemo(
-    () => (threadId === undefined ? [] : transcriptRows(cacheRef.current.entries)),
+  // The previous poll's rows ride into the mapping so unchanged rows keep
+  // their object identity (see reuseRows): the 2s poll re-renders only the
+  // changed tail instead of re-parsing markdown for the whole transcript.
+  const rows = useMemo(() => {
+    const next = threadId === undefined ? [] : transcriptRows(cacheRef.current.entries, prevRowsRef.current)
+    prevRowsRef.current = next
+    return next
+  },
     // The cache is a ref; revision bumps on every successful pull.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [threadId, revision],
