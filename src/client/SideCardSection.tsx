@@ -59,6 +59,7 @@ import {
   TITLE_BAR_STRIP_MIN,
   WIDTH_PERCENT_MAX,
   WIDTH_PERCENT_MIN,
+  type HotkeyToggleTarget,
   type SidebarPrefs,
 } from '../prefs-shared.ts'
 import { api } from './api.ts'
@@ -922,6 +923,34 @@ export function SideCardSection({ store, service }: SideCardSectionProps) {
             checked={prefs.agentOpenTools}
             onChange={(next) => { applyPref({ agentOpenTools: next }) }}
           />
+        </div>
+        <div className={css.row}>
+          <span className={css.rowText}>
+            <span className={css.title}>{t('settingsHotkeyToggleTitle')}</span>
+            <span className={css.desc}>{t('settingsHotkeyToggleDesc')}</span>
+          </span>
+          <span className={css.control}>
+            <SelectMenu
+              label={t('settingsHotkeyToggleTitle')}
+              value={prefs.hotkeyToggleTarget ?? 'both'}
+              options={[
+                { value: 'both', title: t('settingsHotkeyToggleBoth') },
+                { value: 'panel', title: t('settingsHotkeyTogglePanel') },
+                { value: 'bottom', title: t('settingsHotkeyToggleBottom') },
+              ]}
+              onSelect={(next) => {
+                const target = String(next)
+                applyPref({ hotkeyToggleTarget: target as HotkeyToggleTarget })
+                try {
+                  window.localStorage.setItem('dsh-cmdj-toggle:prefs', JSON.stringify({ target }))
+                  const g = window as unknown as { __dshCmdjToggle?: { setPrefs: (p: { target: string }) => void } }
+                  g.__dshCmdjToggle?.setPrefs?.({ target })
+                } catch {
+                  // Ignore localStorage errors
+                }
+              }}
+            />
+          </span>
         </div>
         <div className={css.row}>
           <span className={css.rowText}>

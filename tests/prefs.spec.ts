@@ -58,6 +58,7 @@ describe('side card preferences', () => {
         browserInterceptHttp: true,
         browserInterceptHttps: false,
         browserAllowedLoopback: '',
+        hotkeyToggleTarget: 'both',
         tabsEnabled: {},
         viewersEnabled: {},
         pluginSettings: {},
@@ -92,6 +93,7 @@ describe('side card preferences', () => {
         browserInterceptHttp: true,
         browserInterceptHttps: false,
         browserAllowedLoopback: '',
+        hotkeyToggleTarget: 'both',
         tabsEnabled: {},
         viewersEnabled: {},
         pluginSettings: {},
@@ -126,6 +128,7 @@ describe('side card preferences', () => {
         browserInterceptHttp: true,
         browserInterceptHttps: false,
         browserAllowedLoopback: '',
+        hotkeyToggleTarget: 'both',
         tabsEnabled: {},
         viewersEnabled: {},
         pluginSettings: {},
@@ -180,6 +183,17 @@ describe('side card preferences', () => {
     expect((await loadPrefs(wire({ workspaceFence: 0 }))).workspaceFence).toBe(true)
     // An explicit false survives (the one-click off in the fence error notice).
     expect((await loadPrefs(wire({ workspaceFence: false }))).workspaceFence).toBe(false)
+  })
+
+  it('defaults hotkeyToggleTarget to both; valid values (both | panel | bottom) survive verbatim', async () => {
+    // Absent or malformed → both (focus mode toggle).
+    expect((await loadPrefs(wire({}))).hotkeyToggleTarget).toBe('both')
+    expect((await loadPrefs(wire({ hotkeyToggleTarget: 'invalid' }))).hotkeyToggleTarget).toBe('both')
+    expect((await loadPrefs(wire({ hotkeyToggleTarget: 123 }))).hotkeyToggleTarget).toBe('both')
+    // Valid values survive verbatim.
+    expect((await loadPrefs(wire({ hotkeyToggleTarget: 'both' }))).hotkeyToggleTarget).toBe('both')
+    expect((await loadPrefs(wire({ hotkeyToggleTarget: 'panel' }))).hotkeyToggleTarget).toBe('panel')
+    expect((await loadPrefs(wire({ hotkeyToggleTarget: 'bottom' }))).hotkeyToggleTarget).toBe('bottom')
   })
 
   it('defaults the title-bar scheme to the conservative auto with no preset or custom CSS', async () => {

@@ -13,14 +13,17 @@ import {
   clampTerminalFontSize,
   clampTitleBarStrip,
   clampWidthPercent,
+  HOTKEY_TOGGLE_TARGETS,
   SIDEBAR_PREFS_DEFAULTS,
   TITLE_BAR_SCHEMES,
   TITLE_BAR_STRIP_DEFAULT,
+  type HotkeyToggleTarget,
   type SidebarPrefs,
   type TitleBarScheme,
 } from '../prefs-shared.ts'
 
 export {
+  HOTKEY_TOGGLE_TARGETS,
   SIDEBAR_PREFS_DEFAULTS,
   TITLE_BAR_SCHEMES,
   TITLE_BAR_STRIP_DEFAULT,
@@ -28,7 +31,7 @@ export {
   clampTitleBarStrip,
   clampWidthPercent,
 }
-export type { SidebarPrefs, TitleBarScheme }
+export type { HotkeyToggleTarget, SidebarPrefs, TitleBarScheme }
 
 /** The settings wire face the preferences need (a subset of the plugin api). */
 export type SidebarSettingsClient = Pick<typeof api, 'settingsGet' | 'settingsUpdate'>
@@ -131,6 +134,9 @@ export function parsePrefs(value: unknown): SidebarPrefs {
     browserAllowedLoopback: typeof record.browserAllowedLoopback === 'string'
       ? record.browserAllowedLoopback
       : SIDEBAR_PREFS_DEFAULTS.browserAllowedLoopback,
+    hotkeyToggleTarget: isHotkeyToggleTarget(record.hotkeyToggleTarget)
+      ? record.hotkeyToggleTarget
+      : SIDEBAR_PREFS_DEFAULTS.hotkeyToggleTarget,
     tabsEnabled: booleanMapOf(record.tabsEnabled),
     viewersEnabled: booleanMapOf(record.viewersEnabled),
     pluginSettings: pluginSettingsMapOf(record.pluginSettings),
@@ -171,6 +177,11 @@ function booleanMapOf(value: unknown): Record<string, boolean> {
 /** Type guard for the title-bar scheme union (anything else falls back). */
 function isTitleBarScheme(value: unknown): value is TitleBarScheme {
   return typeof value === 'string' && (TITLE_BAR_SCHEMES as readonly string[]).includes(value)
+}
+
+/** Type guard for the hotkey toggle target union (anything else falls back). */
+export function isHotkeyToggleTarget(value: unknown): value is HotkeyToggleTarget {
+  return typeof value === 'string' && (HOTKEY_TOGGLE_TARGETS as readonly string[]).includes(value)
 }
 
 /**

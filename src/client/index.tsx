@@ -20,6 +20,7 @@ import { RenderBoundary } from './RenderBoundary.tsx'
 import { registerOpenPathInterception, registerTurnTailInterception } from './intercept.tsx'
 import { registerLinkInterception } from './link-intercept.ts'
 import { registerImeGuard } from './ime-guard.ts'
+import { registerHotkeyToggle } from './hotkey.ts'
 import { registerSettingsNavIcon } from './settings-nav-icon.ts'
 import { loadBootDecision } from './prefs.ts'
 import { SideCardSection } from './SideCardSection.tsx'
@@ -416,6 +417,19 @@ export function apply(ctx: Context): void {
         }
       },
       'dsh-better-sidebar: IME composition guard',
+    )
+
+    // Focus hotkey (Cmd/Ctrl + J): toggles right sidebar and/or bottom panel.
+    ctx.effect(
+      () => {
+        try {
+          return registerHotkeyToggle(sidebarStore)
+        } catch (error) {
+          fail('hotkey', error)
+          return () => {}
+        }
+      },
+      'dsh-better-sidebar: focus hotkey (Cmd/Ctrl+J)',
     )
 
     // DSH 0.1.x does not yet carry an icon through the settings.section

@@ -961,6 +961,7 @@ describe('side card settings routes', () => {
         browserInterceptHttp: true,
         browserInterceptHttps: false,
         browserAllowedLoopback: '',
+        hotkeyToggleTarget: 'both',
         changesDiffFloat: true,
         // The enable-switch maps default to {} (everything on).
         tabsEnabled: {},

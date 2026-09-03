@@ -142,6 +142,7 @@ export const PrefsSchema: z<SidebarPrefs> = z.object({
   browserInterceptHttp: z.boolean().default(true),
   browserInterceptHttps: z.boolean().default(false),
   browserAllowedLoopback: z.string().default(''),
+  hotkeyToggleTarget: z.union([z.const('both'), z.const('panel'), z.const('bottom')]).default('both'),
   // Per-feature enable switches are OPEN maps (any tab/viewer id, built-in or
   // external): an absent key means enabled, so old documents resolve to {}
   // (everything on) with no migration. Non-boolean values fail validation.

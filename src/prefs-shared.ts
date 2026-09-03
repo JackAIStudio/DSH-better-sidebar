@@ -219,6 +219,13 @@ export interface SidebarPrefs {
    */
   browserAllowedLoopback: string
   /**
+   * Target panels to toggle when pressing the focus hotkey (Cmd/Ctrl + J):
+   * - `both` (default): toggle both right sidebar and bottom panel together.
+   * - `panel`: toggle the right sidebar only.
+   * - `bottom`: toggle the bottom panel only.
+   */
+  hotkeyToggleTarget: HotkeyToggleTarget
+  /**
    * Per-tab enable switches, keyed by tab descriptor id (`'explorer'`,
    * `'my-plugin:db'`). An ABSENT key means enabled — only an explicit
    * `false` disables a tab type (hidden from the + menu, `openTab` refuses,
@@ -265,6 +272,10 @@ export const TITLE_BAR_STRIP_DEFAULT = 40
 export const TITLE_BAR_SCHEMES = ['auto', 'web', 'preset', 'custom'] as const
 export type TitleBarScheme = typeof TITLE_BAR_SCHEMES[number]
 
+/** Target panels to toggle when pressing the focus hotkey (Cmd/Ctrl + J). */
+export const HOTKEY_TOGGLE_TARGETS = ['both', 'panel', 'bottom'] as const
+export type HotkeyToggleTarget = typeof HOTKEY_TOGGLE_TARGETS[number]
+
 /** Fallback prefs used whenever the settings document is unreachable or malformed. */
 export const SIDEBAR_PREFS_DEFAULTS: SidebarPrefs = {
   openByDefault: false,
@@ -294,6 +305,7 @@ export const SIDEBAR_PREFS_DEFAULTS: SidebarPrefs = {
   browserInterceptHttp: true,
   browserInterceptHttps: false,
   browserAllowedLoopback: '',
+  hotkeyToggleTarget: 'both',
   tabsEnabled: {},
   viewersEnabled: {},
   pluginSettings: {},
