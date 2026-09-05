@@ -175,10 +175,19 @@ function liveThreadAgent(ctx: Context, childId: string): Agent | undefined {
  * (`ctx.connection.api`) was removed in 0.1.2-alpha.1's Remote-gateway
  * migration.
  */
+
+function readSessionEvents(session: unknown): readonly SidechatLogEvent[] {
+  const s = session as { snapshotEvents?: () => readonly unknown[]; events?: readonly unknown[] }
+  if (typeof s?.snapshotEvents === "function") {
+    return s.snapshotEvents() as unknown as readonly SidechatLogEvent[]
+  }
+  return (s?.events ?? []) as unknown as readonly SidechatLogEvent[]
+}
+
 async function threadLogEvents(ctx: Context, childId: string): Promise<readonly SidechatLogEvent[]> {
   const agent = liveThreadAgent(ctx, childId)
   if (agent !== undefined) {
-    return agent.session.snapshotEvents() as unknown as readonly SidechatLogEvent[]
+    return readSessionEvents(agent.session)
   }
   const persistence = ctx.get('sessionPersistence') as SidebarSessionPersistenceService | undefined
   if (persistence === undefined) {
@@ -210,12 +219,10 @@ export function buildSidechatApi(ctx: Context): SidechatRoutes {
         throw new SidebarError('sidechat-error', `parent session "${sessionId}" is not running`, 409)
       }
       const parentSession = parent.session
-      const inheritance = buildSidechatInheritance(
-        parentSession.snapshotEvents() as unknown as readonly SidechatLogEvent[],
-      )
+      const inheritance = buildSidechatInheritance(readSessionEvents(parentSession))
       const { agentPreset, setup } = await composeChildSetup(
         ctx,
-        resolvePresetId(parentSession.header, parentSession.snapshotEvents()),
+        resolvePresetId(parentSession.header, readSessionEvents(parentSession) as any),
       )
       const childId = `session-${randomUUID()}` as SessionId
       const label = question === '' ? SIDE_NEW_THREAD_TITLE : sideLabel(question)
@@ -311,7 +318,7 @@ export function buildSidechatApi(ctx: Context): SidechatRoutes {
           throw new SidebarError('sidechat-error', `thread resume failed: ${error instanceof Error ? error.message : String(error)}`, 500)
         }
       }
-      if (boundaryDelivered(agent.session.snapshotEvents() as unknown as readonly SidechatLogEvent[])) {
+      if (boundaryDelivered(readSessionEvents(agent.session))) {
         admitFollowup(agent, textPrompt(text))
       } else {
         // First message of an immediately-created thread: it carries the
