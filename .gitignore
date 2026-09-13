@@ -141,7 +141,7 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
-lib/
+# lib/ 已纳入 Git 供无编译环境开箱运行
 
 # plugin-registry install staging (assembled by scripts/package-registry.mjs)
 registry/
@@ -154,3 +154,4 @@ registry/
 playwright-report/
 test-results/
 
+lib/**/*.map
